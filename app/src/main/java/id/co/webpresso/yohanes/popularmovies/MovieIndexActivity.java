@@ -2,7 +2,6 @@ package id.co.webpresso.yohanes.popularmovies;
 
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -24,16 +23,16 @@ public class MovieIndexActivity extends AppCompatActivity
     private final static String SORT_POPULAR = "popular";
     private final static String SORT_TOP_RATED = "top_rated";
 
+    /**
+     * Variable to hold current movie sort
+     */
+    private static String currentSort;
+
     private ProgressBar progressBar;
     private TextView errorMessage;
     private Menu menuView;
     private RecyclerView movieIndexView;
     private MoviesAdapter moviesAdapter;
-
-    /**
-     * Variable to hold current movie sort
-     */
-    private String currentSort;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,8 +50,12 @@ public class MovieIndexActivity extends AppCompatActivity
         movieIndexView.setLayoutManager(moviesLayoutManager);
         movieIndexView.setAdapter(moviesAdapter);
 
-        // TODO: Save the state so when user comes back it shows movies with correct sort
-        currentSort = SORT_POPULAR;
+        if (savedInstanceState != null) {
+            currentSort = savedInstanceState.getString(STATE_SORT);
+        } else {
+            currentSort = (currentSort != null)?currentSort:SORT_POPULAR;
+        }
+
         loadMovies();
     }
 
