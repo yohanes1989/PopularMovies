@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tv_movie_detail_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/background_dark"
+            android:textColor="@android:color/primary_text_dark"
+            android:textSize="30sp"
+            android:padding="@dimen/small_gap"
+            android:layout_marginBottom="@dimen/small_gap"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingLeft="@dimen/small_gap"
+            android:paddingRight="@dimen/small_gap"
+            android:layout_marginBottom="@dimen/small_gap">
+            <ImageView
+                android:id="@+id/tv_movie_detail_poster"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:layout_marginRight="@dimen/small_gap"
+                android:adjustViewBounds="true" />
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="0dp"
+                android:layout_weight="0.5"
+                android:layout_height="wrap_content"
+                >
+                <TextView
+                    android:id="@+id/tv_movie_detail_year"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="24sp"/>
+
+                <TextView
+                    android:id="@+id/tv_movie_detail_duration"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="20sp"
+                    android:textStyle="italic"/>
+
+                <TextView
+                    android:id="@+id/tv_movie_detail_rating"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="20sp"
+                    android:padding="5dp"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_movie_detail_overview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="@dimen/small_gap"
+            android:paddingRight="@dimen/small_gap"
+            android:paddingBottom="@dimen/small_gap"
+            />
+
+        <ProgressBar
+            android:id="@+id/pb_movie_detail"
+            android:layout_width="@dimen/progress_bar_size"
+            android:layout_height="@dimen/progress_bar_size"
+            android:layout_gravity="center"
+            android:visibility="invisible"/>
+
+        <TextView
+            android:id="@+id/tv_movie_detail_error_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Movie detail can't be displayed."
+            android:visibility="invisible"/>
+    </LinearLayout>
+</ScrollView>
