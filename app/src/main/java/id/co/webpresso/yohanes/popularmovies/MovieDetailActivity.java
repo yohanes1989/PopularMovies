@@ -14,33 +14,27 @@ import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import id.co.webpresso.yohanes.popularmovies.model.Movie;
 import id.co.webpresso.yohanes.popularmovies.utilities.MovieDbUtility;
 
 public class MovieDetailActivity extends AppCompatActivity {
     private Movie movie;
-    private TextView movieNameTextView;
-    private ImageView moviePosterImageView;
-    private TextView movieYearTextView;
-    private TextView movieDurationTextView;
-    private TextView movieRatingTextView;
-    private TextView movieOverviewTextView;
-    private ProgressBar progressBar;
-    private TextView errorMessage;
+    @BindView(R.id.tv_movie_detail_name) TextView movieNameTextView;
+    @BindView(R.id.tv_movie_detail_poster) ImageView moviePosterImageView;
+    @BindView(R.id.tv_movie_detail_year) TextView movieYearTextView;
+    @BindView(R.id.tv_movie_detail_duration) TextView movieDurationTextView;
+    @BindView(R.id.tv_movie_detail_rating) TextView movieRatingTextView;
+    @BindView(R.id.tv_movie_detail_overview) TextView movieOverviewTextView;
+    @BindView(R.id.pb_movie_detail) ProgressBar progressBar;
+    @BindView(R.id.tv_movie_detail_error_message) TextView errorMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
-
-        progressBar = (ProgressBar) findViewById(R.id.pb_movie_detail);
-        errorMessage = (TextView) findViewById(R.id.tv_movie_detail_error_message);
-        movieNameTextView = (TextView) findViewById(R.id.tv_movie_detail_name);
-        moviePosterImageView = (ImageView) findViewById(R.id.tv_movie_detail_poster);
-        movieYearTextView = (TextView) findViewById(R.id.tv_movie_detail_year);
-        movieDurationTextView = (TextView) findViewById(R.id.tv_movie_detail_duration);
-        movieRatingTextView = (TextView) findViewById(R.id.tv_movie_detail_rating);
-        movieOverviewTextView = (TextView) findViewById(R.id.tv_movie_detail_overview);
+        ButterKnife.bind(this);
 
         movie = getIntent().getParcelableExtra("MOVIE");
 
