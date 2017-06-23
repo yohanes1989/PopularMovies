@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import id.co.webpresso.yohanes.popularmovies.adapter.MoviesAdapter;
 import id.co.webpresso.yohanes.popularmovies.utilities.MovieDbUtility;
+import id.co.webpresso.yohanes.popularmovies.model.Movie;
 
 public class MovieIndexActivity extends AppCompatActivity
     implements MoviesAdapter.MovieClickHandlerInterface {
@@ -93,9 +94,9 @@ public class MovieIndexActivity extends AppCompatActivity
     }
 
     @Override
-    public void onMovieClick(Integer movieId) {
+    public void onMovieClick(Movie movie) {
         Intent intent = new Intent(this, MovieDetailActivity.class);
-        intent.putExtra("MOVIE_ID", movieId);
+        intent.putExtra("MOVIE", movie);
 
         startActivity(intent);
     }
@@ -132,7 +133,7 @@ public class MovieIndexActivity extends AppCompatActivity
     /**
      * Background asynk task to fetch movies
      */
-    class FetchMoviesTask extends AsyncTask<String, Void, MovieDbUtility.Movie[]> {
+    class FetchMoviesTask extends AsyncTask<String, Void, Movie[]> {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -140,14 +141,14 @@ public class MovieIndexActivity extends AppCompatActivity
         }
 
         @Override
-        protected MovieDbUtility.Movie[] doInBackground(String... strings) {
+        protected Movie[] doInBackground(String... strings) {
             MovieDbUtility movieDbUtility = new MovieDbUtility(MovieIndexActivity.this);
 
             return movieDbUtility.getMovies(strings[0]);
         }
 
         @Override
-        protected void onPostExecute(MovieDbUtility.Movie[] movies) {
+        protected void onPostExecute(Movie[] movies) {
             progressBar.setVisibility(View.INVISIBLE);
             movieIndexView.setVisibility(View.VISIBLE);
             moviesAdapter.setMovies(movies);

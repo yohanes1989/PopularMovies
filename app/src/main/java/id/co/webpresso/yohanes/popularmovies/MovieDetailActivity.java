@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -13,10 +14,11 @@ import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 
+import id.co.webpresso.yohanes.popularmovies.model.Movie;
 import id.co.webpresso.yohanes.popularmovies.utilities.MovieDbUtility;
 
 public class MovieDetailActivity extends AppCompatActivity {
-    private MovieDbUtility.Movie movie;
+    private Movie movie;
     private TextView movieNameTextView;
     private ImageView moviePosterImageView;
     private TextView movieYearTextView;
@@ -40,11 +42,11 @@ public class MovieDetailActivity extends AppCompatActivity {
         movieRatingTextView = (TextView) findViewById(R.id.tv_movie_detail_rating);
         movieOverviewTextView = (TextView) findViewById(R.id.tv_movie_detail_overview);
 
-        Integer movieId = getIntent().getIntExtra("MOVIE_ID", 0);
+        movie = getIntent().getParcelableExtra("MOVIE");
 
         getSupportActionBar().setTitle(getResources().getString(R.string.movie_detail_title));
 
-        new FetchMovieTask().execute(movieId);
+        new FetchMovieTask().execute(movie.id);
     }
 
     /**
@@ -52,7 +54,7 @@ public class MovieDetailActivity extends AppCompatActivity {
      */
     public void renderMovie() {
         movieNameTextView.setText(movie.title);
-        movieYearTextView.setText(new SimpleDateFormat("yyyy").format(movie.releaseDate));
+        movieYearTextView.setText(new SimpleDateFormat("yyyy").format(movie.getReleaseDate()));
 
         movieRatingTextView.setText(movie.voteAverage + "/" + 10);
         changeRatingColor(movieRatingTextView);
@@ -96,21 +98,21 @@ public class MovieDetailActivity extends AppCompatActivity {
     /**
      * Background async task to fetch specific movie by ID
      */
-    class FetchMovieTask extends AsyncTask<Integer, Void, MovieDbUtility.Movie> {
+    class FetchMovieTask extends AsyncTask<Integer, Void, Movie> {
         @Override
         protected void onPreExecute() {
             renderProgress();
         }
 
         @Override
-        protected MovieDbUtility.Movie doInBackground(Integer... movieIds) {
+        protected Movie doInBackground(Integer... movieIds) {
             MovieDbUtility movieDbUtility = new MovieDbUtility(MovieDetailActivity.this);
 
             return movieDbUtility.getMovie(movieIds[0]);
         }
 
         @Override
-        protected void onPostExecute(MovieDbUtility.Movie movie) {
+        protected void onPostExecute(Movie movie) {
             progressBar.setVisibility(View.INVISIBLE);
 
             MovieDetailActivity.this.movie = movie;

@@ -6,14 +6,11 @@ import android.net.Uri;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.IOException;
 import java.net.URL;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import id.co.webpresso.yohanes.popularmovies.R;
+import id.co.webpresso.yohanes.popularmovies.model.Movie;
 
 /**
  * Utility class to help requesting from The Movie DB
@@ -26,22 +23,6 @@ public final class MovieDbUtility {
 
     public MovieDbUtility(Context context) {
         apiKey = context.getResources().getString(R.string.themoviedb_api_key);
-    }
-
-    public class Movie {
-        public Integer id;
-        public String posterPath;
-        public String overview;
-        public String title;
-        public Double voteAverage;
-        public Integer voteCount;
-        public Double popularity;
-        public Date releaseDate;
-        public Integer runtime;
-
-        public String getPosterPath(String size) {
-            return "http://image.tmdb.org/t/p/" + size + posterPath;
-        }
     }
 
     /**
@@ -177,15 +158,7 @@ public final class MovieDbUtility {
         movie.voteAverage = jsonObject.getDouble(voteAverageKey);
         movie.voteCount = jsonObject.getInt(voteCountKey);
         movie.popularity = jsonObject.getDouble(popularityKey);
-
-        // Convert release date to Date object
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        try {
-            movie.releaseDate = dateFormat.parse(jsonObject.getString(releaseDateKey));
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
+        movie.releaseDate = jsonObject.getString(releaseDateKey);
 
         if (jsonObject.has(runtimeKey)) {
             movie.runtime = jsonObject.getInt(runtimeKey);

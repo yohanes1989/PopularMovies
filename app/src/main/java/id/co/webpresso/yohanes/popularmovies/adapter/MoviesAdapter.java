@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import com.squareup.picasso.Picasso;
 
 import id.co.webpresso.yohanes.popularmovies.R;
+import id.co.webpresso.yohanes.popularmovies.model.Movie;
 import id.co.webpresso.yohanes.popularmovies.utilities.MovieDbUtility;
 
 /**
@@ -17,7 +18,7 @@ import id.co.webpresso.yohanes.popularmovies.utilities.MovieDbUtility;
  */
 
 public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewHolder> {
-    public MovieDbUtility.Movie[] movies;
+    public Movie[] movies;
     private Context context;
 
     /**
@@ -54,7 +55,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
      * Set new set of Movie data
      * @param movies
      */
-    public void setMovies(MovieDbUtility.Movie[] movies) {
+    public void setMovies(Movie[] movies) {
         this.movies = movies;
         notifyDataSetChanged();
     }
@@ -63,7 +64,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
      * Interface to be implemented for handling click
      */
     public interface MovieClickHandlerInterface {
-        void onMovieClick(Integer movieId);
+        void onMovieClick(Movie movie);
     }
 
     /**
@@ -82,7 +83,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
 
         @Override
         public void onClick(View view) {
-            movieClickHandler.onMovieClick(movies[getAdapterPosition()].id);
+            movieClickHandler.onMovieClick(movies[getAdapterPosition()]);
         }
 
         /**
