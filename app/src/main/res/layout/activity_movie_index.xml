@@ -20,6 +20,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="Movies can't be fetched."
+        android:text="@string/movie_fetch_error"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/tv_movie_index_no_favorite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/movie_index_no_favorite"
         android:visibility="gone"/>
 </FrameLayout>

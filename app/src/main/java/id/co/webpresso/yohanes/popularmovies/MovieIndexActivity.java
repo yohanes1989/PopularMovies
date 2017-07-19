@@ -34,6 +34,7 @@ public class MovieIndexActivity extends AppCompatActivity
 
     private ProgressBar progressBar;
     private TextView errorMessage;
+    private TextView noFavMessage;
     private RecyclerView movieIndexView;
     private MoviesAdapter moviesAdapter;
 
@@ -44,6 +45,7 @@ public class MovieIndexActivity extends AppCompatActivity
 
         progressBar = (ProgressBar) findViewById(R.id.pb_movie_index);
         errorMessage = (TextView) findViewById(R.id.tv_movie_index_error_message);
+        noFavMessage = (TextView) findViewById(R.id.tv_movie_index_no_favorite);
 
         moviesAdapter = new MoviesAdapter(getApplicationContext(), this);
         GridLayoutManager moviesLayoutManager = new GridLayoutManager(this, getResources().getInteger(R.integer.movie_index_columns));
@@ -116,6 +118,7 @@ public class MovieIndexActivity extends AppCompatActivity
     public void renderProgress() {
         movieIndexView.setVisibility(View.INVISIBLE);
         errorMessage.setVisibility(View.GONE);
+        noFavMessage.setVisibility(View.GONE);
         progressBar.setVisibility(View.VISIBLE);
     }
 
@@ -170,11 +173,11 @@ public class MovieIndexActivity extends AppCompatActivity
         movieIndexView.setVisibility(View.VISIBLE);
         moviesAdapter.updateCursor(data);
 
-        if (data.getCount() == 0 && !MovieSyncIntentService.isRunning) {
-            errorMessage.setVisibility(View.VISIBLE);
-        } else {
-            progressBar.setVisibility(View.GONE);
+        if (data.getCount() == 0 && currentSort == MovieContract.MovieEntry.SORT_FAVORITES) {
+            noFavMessage.setVisibility(View.VISIBLE);
         }
+
+        progressBar.setVisibility(View.GONE);
 
         movieIndexView.smoothScrollToPosition(0);
     }
