@@ -6,6 +6,8 @@
     <color name="mediumRatingText">#000000</color>
     <color name="goodRatingBackground">#689F38</color>
     <color name="goodRatingText">#FFFFFF</color>
+    <color name="red">#F44336</color>
+    <color name="borderColor">#EEEEEE</color>
     <!--<color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>-->

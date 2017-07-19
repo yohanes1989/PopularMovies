@@ -1,12 +1,15 @@
 package id.co.webpresso.yohanes.popularmovies;
 
 import android.content.Intent;
-import android.os.AsyncTask;
+import android.database.Cursor;
+import android.net.Uri;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,15 +17,14 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import id.co.webpresso.yohanes.popularmovies.adapter.MoviesAdapter;
+import id.co.webpresso.yohanes.popularmovies.data.MovieContract;
 import id.co.webpresso.yohanes.popularmovies.utilities.MovieDbUtility;
-import id.co.webpresso.yohanes.popularmovies.model.Movie;
 
 public class MovieIndexActivity extends AppCompatActivity
-    implements MoviesAdapter.MovieClickHandlerInterface {
+    implements MoviesAdapter.MovieClickHandlerInterface, LoaderManager.LoaderCallbacks<Cursor> {
     private final static String TAG = MovieIndexActivity.class.getSimpleName();
     private final static String STATE_SORT = "movieSort";
-    private final static String SORT_POPULAR = "popular";
-    private final static String SORT_TOP_RATED = "top_rated";
+    private final static int MOVIE_LOADER_ID = 1;
 
     /**
      * Variable to hold current movie sort
@@ -54,7 +56,7 @@ public class MovieIndexActivity extends AppCompatActivity
         if (savedInstanceState != null) {
             currentSort = savedInstanceState.getString(STATE_SORT);
         } else {
-            currentSort = (currentSort != null)?currentSort:SORT_POPULAR;
+            currentSort = (currentSort != null)?currentSort: MovieContract.MovieEntry.SORT_POPULAR;
         }
 
         loadMovies();
@@ -73,12 +75,16 @@ public class MovieIndexActivity extends AppCompatActivity
         Integer selectedItemId = item.getItemId();
 
         switch (selectedItemId) {
+            case R.id.action_sort_favorites:
+                currentSort = MovieContract.MovieEntry.SORT_FAVORITES;
+                loadMovies();
+                return true;
             case R.id.action_sort_popular_desc:
-                currentSort = SORT_POPULAR;
+                currentSort = MovieContract.MovieEntry.SORT_POPULAR;
                 loadMovies();
                 return true;
             case R.id.action_sort_rating_desc:
-                currentSort = SORT_TOP_RATED;
+                currentSort = MovieContract.MovieEntry.SORT_TOP_RATED;
                 loadMovies();
                 return true;
         }
@@ -94,9 +100,13 @@ public class MovieIndexActivity extends AppCompatActivity
     }
 
     @Override
-    public void onMovieClick(Movie movie) {
+    public void onMovieClick(long movieId) {
+        Uri movieDetailUri = MovieContract.MovieEntry.MOVIE_CONTENT_URI.buildUpon()
+                .appendPath(String.valueOf(movieId))
+                .build();
+
         Intent intent = new Intent(this, MovieDetailActivity.class);
-        intent.putExtra("MOVIE", movie);
+        intent.setData(movieDetailUri);
 
         startActivity(intent);
     }
@@ -114,48 +124,62 @@ public class MovieIndexActivity extends AppCompatActivity
      * Load movies based on currentSort
      */
     public void loadMovies() {
-        // TODO: Check option menu so user knows where they are
-        //menuView.findItem(R.id.action_sort_popular_desc).setChecked(true);
-        //menuView.findItem(R.id.action_sort_popular_desc).setIcon(android.R.drawable.checkbox_on_background);
-
         switch (currentSort) {
-            case SORT_POPULAR:
+            case MovieContract.MovieEntry.SORT_FAVORITES:
+                getSupportActionBar().setTitle(getResources().getString(R.string.movie_index_favorites_title));
+                break;
+            case MovieContract.MovieEntry.SORT_POPULAR:
                 getSupportActionBar().setTitle(getResources().getString(R.string.movie_index_popularity_title));
                 break;
-            case SORT_TOP_RATED:
+            case MovieContract.MovieEntry.SORT_TOP_RATED:
                 getSupportActionBar().setTitle(getResources().getString(R.string.movie_index_top_rated_title));
                 break;
         }
 
-        new FetchMoviesTask().execute(currentSort);
+        movieIndexView.smoothScrollToPosition(0);
+        renderProgress();
+        getSupportLoaderManager().restartLoader(MOVIE_LOADER_ID, null, this);
+
+        if (currentSort != MovieContract.MovieEntry.SORT_FAVORITES) {
+            MovieDbUtility.startSyncImmediately(this, currentSort);
+        }
     }
 
-    /**
-     * Background asynk task to fetch movies
-     */
-    class FetchMoviesTask extends AsyncTask<String, Void, Movie[]> {
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            renderProgress();
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        switch (id) {
+            case MOVIE_LOADER_ID:
+                Uri MOVIE_URI = MovieContract.MovieEntry.MOVIE_CONTENT_URI;
+
+                return new CursorLoader(
+                        this,
+                        MOVIE_URI,
+                        null,
+                        MovieContract.MovieEntry.getWhereQuery(currentSort),
+                        null,
+                        MovieContract.MovieEntry.getSortQuery(currentSort)
+                    );
+
+            default:
+                throw new RuntimeException("Loader not found.");
         }
+    }
 
-        @Override
-        protected Movie[] doInBackground(String... strings) {
-            MovieDbUtility movieDbUtility = new MovieDbUtility(MovieIndexActivity.this);
 
-            return movieDbUtility.getMovies(strings[0]);
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        progressBar.setVisibility(View.INVISIBLE);
+        movieIndexView.setVisibility(View.VISIBLE);
+        moviesAdapter.updateCursor(data);
+
+        if (data.getCount() == 0) {
+            errorMessage.setVisibility(View.VISIBLE);
         }
+    }
 
-        @Override
-        protected void onPostExecute(Movie[] movies) {
-            progressBar.setVisibility(View.INVISIBLE);
-            movieIndexView.setVisibility(View.VISIBLE);
-            moviesAdapter.setMovies(movies);
-
-            if (movies == null) {
-                errorMessage.setVisibility(View.VISIBLE);
-            }
-        }
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        moviesAdapter.updateCursor(null);
     }
 }

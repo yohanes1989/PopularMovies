@@ -10,6 +10,11 @@
         android:enabled="false" />
 
     <item
+        android:id="@+id/action_sort_favorites"
+        android:title="@string/action_favorites"
+        android:orderInCategory="1" />
+
+    <item
         android:id="@+id/action_sort_popular_desc"
         android:title="@string/action_sort_by_popularity"
         android:orderInCategory="1" />

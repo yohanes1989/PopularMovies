@@ -22,7 +22,8 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:paddingLeft="@dimen/small_gap"
-            android:paddingRight="@dimen/small_gap">
+            android:paddingRight="@dimen/small_gap"
+            android:layout_marginBottom="@dimen/small_gap">
             <ImageView
                 android:id="@+id/tv_movie_detail_poster"
                 android:layout_width="0dp"
@@ -68,17 +69,14 @@
                     android:layout_marginTop="10dp"
                     android:onClick="toggleFavorite"
                     android:text="@string/favorite_text" />
+
+                <TextView
+                    android:id="@+id/tv_movie_detail_overview"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    />
             </LinearLayout>
         </LinearLayout>
-
-        <TextView
-            android:id="@+id/tv_movie_detail_overview"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="@dimen/small_gap"
-            android:paddingLeft="@dimen/small_gap"
-            android:paddingRight="@dimen/small_gap"
-            />
 
         <ProgressBar
             android:id="@+id/pb_movie_detail"

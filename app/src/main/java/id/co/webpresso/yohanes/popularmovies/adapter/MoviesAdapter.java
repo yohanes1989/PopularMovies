@@ -1,6 +1,7 @@
 package id.co.webpresso.yohanes.popularmovies.adapter;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,7 +11,7 @@ import android.widget.ImageView;
 import com.squareup.picasso.Picasso;
 
 import id.co.webpresso.yohanes.popularmovies.R;
-import id.co.webpresso.yohanes.popularmovies.model.Movie;
+import id.co.webpresso.yohanes.popularmovies.data.MovieContract;
 import id.co.webpresso.yohanes.popularmovies.utilities.MovieDbUtility;
 
 /**
@@ -18,8 +19,8 @@ import id.co.webpresso.yohanes.popularmovies.utilities.MovieDbUtility;
  */
 
 public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewHolder> {
-    public Movie[] movies;
     private Context context;
+    private Cursor cursor;
 
     /**
      * Store the click handler
@@ -33,7 +34,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
 
     @Override
     public int getItemCount() {
-        return (movies == null)?0:movies.length;
+        return (cursor == null)?0:cursor.getCount();
     }
 
     @Override
@@ -52,11 +53,14 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
     }
 
     /**
-     * Set new set of Movie data
-     * @param movies
+     * Update Cursor
+     * @param cursor
      */
-    public void setMovies(Movie[] movies) {
-        this.movies = movies;
+    public void updateCursor(Cursor cursor) {
+        if (this.cursor != null)
+            this.cursor.close();
+
+        this.cursor = cursor;
         notifyDataSetChanged();
     }
 
@@ -64,7 +68,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
      * Interface to be implemented for handling click
      */
     public interface MovieClickHandlerInterface {
-        void onMovieClick(Movie movie);
+        void onMovieClick(long movieId);
     }
 
     /**
@@ -83,16 +87,24 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
 
         @Override
         public void onClick(View view) {
-            movieClickHandler.onMovieClick(movies[getAdapterPosition()]);
+            cursor.moveToPosition(getAdapterPosition());
+
+            int idColumnIndex = cursor.getColumnIndex(MovieContract.MovieEntry._ID);
+            long movieId = cursor.getInt(idColumnIndex);
+
+            movieClickHandler.onMovieClick(movieId);
         }
 
         /**
          * Function to be called within onBindViewHolder
          */
         void bind() {
+            cursor.moveToPosition(getAdapterPosition());
+
+            int posterPathColumnIndex = cursor.getColumnIndex(MovieContract.MovieEntry.MOVIE_COLUMN_POSTER_PATH);
             // Use Picasso to load movie poster
             Picasso.with(context)
-                    .load(movies[getAdapterPosition()].getPosterPath("w500"))
+                    .load(MovieDbUtility.getPosterPath(cursor.getString(posterPathColumnIndex), "w500"))
                     .into(moviePosterImageView);
         }
     }

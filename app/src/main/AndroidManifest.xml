@@ -11,7 +11,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MovieIndexActivity">
+        <activity
+            android:name=".MovieIndexActivity"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -25,6 +27,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MovieIndexActivity" />
         </activity>
+        
+        <provider
+            android:authorities="@string/content_authority"
+            android:name=".data.MovieProvider"
+            android:exported="false" />
+
+        <service
+            android:name=".sync.MovieSyncIntentService"
+            android:exported="false" />
     </application>
 
 </manifest>
