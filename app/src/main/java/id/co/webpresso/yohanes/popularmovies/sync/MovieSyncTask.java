@@ -31,6 +31,8 @@ public class MovieSyncTask {
             }
         } catch(Exception e) {
             e.printStackTrace();
+        } finally {
+            MovieSyncIntentService.isRunning = false;
         }
     }
 
@@ -53,6 +55,8 @@ public class MovieSyncTask {
             }
         } catch(Exception e) {
             e.printStackTrace();
+        } finally {
+            MovieSyncIntentService.isRunning = false;
         }
     }
 }

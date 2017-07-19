@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import id.co.webpresso.yohanes.popularmovies.adapter.MoviesAdapter;
 import id.co.webpresso.yohanes.popularmovies.data.MovieContract;
+import id.co.webpresso.yohanes.popularmovies.sync.MovieSyncIntentService;
 import id.co.webpresso.yohanes.popularmovies.utilities.MovieDbUtility;
 
 public class MovieIndexActivity extends AppCompatActivity
@@ -33,7 +34,6 @@ public class MovieIndexActivity extends AppCompatActivity
 
     private ProgressBar progressBar;
     private TextView errorMessage;
-    private Menu menuView;
     private RecyclerView movieIndexView;
     private MoviesAdapter moviesAdapter;
 
@@ -64,7 +64,6 @@ public class MovieIndexActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        menuView = menu;
         getMenuInflater().inflate(R.menu.sort_menu, menu);
 
         return true;
@@ -116,7 +115,7 @@ public class MovieIndexActivity extends AppCompatActivity
      */
     public void renderProgress() {
         movieIndexView.setVisibility(View.INVISIBLE);
-        errorMessage.setVisibility(View.INVISIBLE);
+        errorMessage.setVisibility(View.GONE);
         progressBar.setVisibility(View.VISIBLE);
     }
 
@@ -136,7 +135,6 @@ public class MovieIndexActivity extends AppCompatActivity
                 break;
         }
 
-        movieIndexView.smoothScrollToPosition(0);
         renderProgress();
         getSupportLoaderManager().restartLoader(MOVIE_LOADER_ID, null, this);
 
@@ -169,13 +167,16 @@ public class MovieIndexActivity extends AppCompatActivity
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        progressBar.setVisibility(View.INVISIBLE);
         movieIndexView.setVisibility(View.VISIBLE);
         moviesAdapter.updateCursor(data);
 
-        if (data.getCount() == 0) {
+        if (data.getCount() == 0 && !MovieSyncIntentService.isRunning) {
             errorMessage.setVisibility(View.VISIBLE);
+        } else {
+            progressBar.setVisibility(View.GONE);
         }
+
+        movieIndexView.smoothScrollToPosition(0);
     }
 
     @Override

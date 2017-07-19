@@ -9,12 +9,15 @@ import android.support.annotation.Nullable;
  */
 
 public class MovieSyncIntentService extends IntentService {
+    public static boolean isRunning = false;
+
     public MovieSyncIntentService() {
         super("MovieSyncIntentService");
     }
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
+        isRunning = true;
         String sort = intent.getStringExtra("SORT");
 
         // If sort is null, we want to fetch specific movie instead
