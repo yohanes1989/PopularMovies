@@ -177,6 +177,7 @@ public class MovieIndexActivity extends AppCompatActivity
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        moviesAdapter.updateCursor(data);
         movieIndexView.setVisibility(View.VISIBLE);
 
         if (data.getCount() == 0 && currentSort == MovieContract.MovieEntry.SORT_FAVORITES) {
@@ -186,7 +187,6 @@ public class MovieIndexActivity extends AppCompatActivity
         progressBar.setVisibility(View.GONE);
 
         movieIndexView.smoothScrollToPosition(lastVisiblePosition);
-        moviesAdapter.updateCursor(data);
     }
 
     @Override
