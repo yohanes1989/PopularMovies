@@ -10,8 +10,13 @@
     <string name="action_sort_by_top_rated">Top Rated</string>
     <string name="movie_fetch_error">Movies can\'t be fetched.</string>
     <string name="movie_index_no_favorite">You haven\'t favorited any movie yet.</string>
+
     <string name="favorite_text">Add to Favorite</string>
+    <string name="favorite_notification">Favorited this movie</string>
     <string name="unfavorite_text">Remove from Favorite</string>
+    <string name="unfavorite_notification">Unfavorited this movie</string>
+
+    <string name="undo_label">Undo</string>
 
     <plurals name="movie_detail_trailer_title">
         <item quantity="zero">Trailer (%d)</item>

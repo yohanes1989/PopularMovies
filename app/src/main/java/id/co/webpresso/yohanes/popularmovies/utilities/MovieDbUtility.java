@@ -251,6 +251,7 @@ public final class MovieDbUtility {
     private ContentValues parseMovieFromJsonObject(JSONObject jsonObject) throws JSONException {
         final String idKey = "id";
         final String posterPathKey = "poster_path";
+        final String backdropPathKey = "backdrop_path";
         final String overviewKey = "overview";
         final String titleKey = "title";
         final String voteAverageKey = "vote_average";
@@ -262,12 +263,16 @@ public final class MovieDbUtility {
         ContentValues movie = new ContentValues();
         movie.put(MovieContract.MovieEntry.MOVIE_COLUMN_EXTERNAL_ID, jsonObject.getInt(idKey));
         movie.put(MovieContract.MovieEntry.MOVIE_COLUMN_POSTER_PATH, jsonObject.getString(posterPathKey));
+        movie.put(MovieContract.MovieEntry.MOVIE_COLUMN_BACKDROP_PATH, jsonObject.getString(backdropPathKey));
         movie.put(MovieContract.MovieEntry.MOVIE_COLUMN_OVERVIEW, jsonObject.getString(overviewKey));
         movie.put(MovieContract.MovieEntry.MOVIE_COLUMN_NAME, jsonObject.getString(titleKey));
         movie.put(MovieContract.MovieEntry.MOVIE_COLUMN_VOTE_AVERAGE, jsonObject.getDouble(voteAverageKey));
         movie.put(MovieContract.MovieEntry.MOVIE_COLUMN_VOTE_COUNT, jsonObject.getInt(voteCountKey));
-        movie.put(MovieContract.MovieEntry.MOVIE_COLUMN_POPULARITY, jsonObject.getDouble(popularityKey));
         movie.put(MovieContract.MovieEntry.MOVIE_COLUMN_RELEASE_DATE, jsonObject.getString(releaseDateKey));
+
+        if (jsonObject.has(popularityKey)) {
+            movie.put(MovieContract.MovieEntry.MOVIE_COLUMN_POPULARITY, jsonObject.getDouble(popularityKey));
+        }
 
         if (jsonObject.has(runtimeKey)) {
             movie.put(MovieContract.MovieEntry.MOVIE_COLUMN_RUNTIME, jsonObject.getString(runtimeKey));

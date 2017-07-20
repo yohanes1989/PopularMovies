@@ -10,7 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class MovieSQLiteOpenHelper extends SQLiteOpenHelper {
     private final static String DATABASE_NAME = "movies.db";
-    private final static int DATABASE_VERSION = 1;
+    private final static int DATABASE_VERSION = 2;
 
     public MovieSQLiteOpenHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -38,10 +38,12 @@ public class MovieSQLiteOpenHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-        String dropIfExistsQuery = "DROP TABLE IF EXISTS " + MovieContract.MovieEntry.TABLE_NAME;
-        sqLiteDatabase.execSQL(dropIfExistsQuery);
+    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
+        if (oldVersion < 2) {
+            String upgradeQuery = "ALTER TABLE " + MovieContract.MovieEntry.TABLE_NAME + " " +
+                    "ADD COLUMN " + MovieContract.MovieEntry.MOVIE_COLUMN_BACKDROP_PATH + " STRING;";
 
-        onCreate(sqLiteDatabase);
+            sqLiteDatabase.execSQL(upgradeQuery);
+        }
     }
 }

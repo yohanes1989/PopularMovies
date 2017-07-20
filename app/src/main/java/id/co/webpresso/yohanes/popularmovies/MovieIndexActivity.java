@@ -18,19 +18,20 @@ import android.widget.TextView;
 
 import id.co.webpresso.yohanes.popularmovies.adapter.MoviesAdapter;
 import id.co.webpresso.yohanes.popularmovies.data.MovieContract;
-import id.co.webpresso.yohanes.popularmovies.sync.MovieSyncIntentService;
 import id.co.webpresso.yohanes.popularmovies.utilities.MovieDbUtility;
 
 public class MovieIndexActivity extends AppCompatActivity
     implements MoviesAdapter.MovieClickHandlerInterface, LoaderManager.LoaderCallbacks<Cursor> {
     private final static String TAG = MovieIndexActivity.class.getSimpleName();
-    private final static String STATE_SORT = "movieSort";
+    private final static String STATE_SORT = "movie_sort";
+    private final static String STATE_SCROLL_POSITION = "scroll_position";
     private final static int MOVIE_LOADER_ID = 1;
 
     /**
      * Variable to hold current movie sort
      */
     private static String currentSort;
+    private static int lastVisiblePosition;
 
     private ProgressBar progressBar;
     private TextView errorMessage;
@@ -57,8 +58,10 @@ public class MovieIndexActivity extends AppCompatActivity
 
         if (savedInstanceState != null) {
             currentSort = savedInstanceState.getString(STATE_SORT);
+            lastVisiblePosition = savedInstanceState.getInt(STATE_SCROLL_POSITION);
         } else {
             currentSort = (currentSort != null)?currentSort: MovieContract.MovieEntry.SORT_POPULAR;
+            lastVisiblePosition = 0;
         }
 
         loadMovies();
@@ -96,12 +99,16 @@ public class MovieIndexActivity extends AppCompatActivity
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putString(STATE_SORT, currentSort);
+        outState.putInt(STATE_SCROLL_POSITION, ((GridLayoutManager) movieIndexView.getLayoutManager()).findLastVisibleItemPosition());
 
         super.onSaveInstanceState(outState);
     }
 
     @Override
     public void onMovieClick(long movieId) {
+        // Set last visible position so it will scroll back to previous position on back
+        lastVisiblePosition = ((GridLayoutManager) movieIndexView.getLayoutManager()).findLastVisibleItemPosition();
+
         Uri movieDetailUri = MovieContract.MovieEntry.MOVIE_CONTENT_URI.buildUpon()
                 .appendPath(String.valueOf(movieId))
                 .build();
@@ -171,7 +178,6 @@ public class MovieIndexActivity extends AppCompatActivity
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         movieIndexView.setVisibility(View.VISIBLE);
-        moviesAdapter.updateCursor(data);
 
         if (data.getCount() == 0 && currentSort == MovieContract.MovieEntry.SORT_FAVORITES) {
             noFavMessage.setVisibility(View.VISIBLE);
@@ -179,7 +185,8 @@ public class MovieIndexActivity extends AppCompatActivity
 
         progressBar.setVisibility(View.GONE);
 
-        movieIndexView.smoothScrollToPosition(0);
+        movieIndexView.smoothScrollToPosition(lastVisiblePosition);
+        moviesAdapter.updateCursor(data);
     }
 
     @Override

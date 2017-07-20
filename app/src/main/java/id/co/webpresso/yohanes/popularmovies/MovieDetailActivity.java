@@ -5,6 +5,9 @@ import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
@@ -47,10 +50,11 @@ public class MovieDetailActivity extends AppCompatActivity
 
     private Reviews reviews;
     private MovieReviewsAdapter reviewsAdapter;
+    private CoordinatorLayout rootLayout;
 
     @BindView(R.id.tv_movie_detail_name) TextView movieNameTextView;
     @BindView(R.id.tv_movie_detail_poster) ImageView moviePosterImageView;
-    @BindView(R.id.tv_movie_detail_year) TextView movieYearTextView;
+    @BindView(R.id.tv_movie_detail_release) TextView movieReleaseTextView;
     @BindView(R.id.tv_movie_detail_duration) TextView movieDurationTextView;
     @BindView(R.id.tv_movie_detail_rating) TextView movieRatingTextView;
     @BindView(R.id.tv_movie_detail_overview) TextView movieOverviewTextView;
@@ -59,6 +63,8 @@ public class MovieDetailActivity extends AppCompatActivity
     @BindView(R.id.btn_toggle_favorite) Button favoriteToggleButton;
     @BindView(R.id.movie_detail_trailers) View trailersLayout;
     @BindView(R.id.movie_detail_reviews) View reviewsLayout;
+    @BindView(R.id.movie_detail_backdrop) ImageView movieBackdropImageView;
+    @BindView(R.id.movie_detail_backdrop_layout) CollapsingToolbarLayout movieDetailBackdropLayout;
 
     class Trailers {
         @BindView(R.id.movie_detail_trailer_list) RecyclerView trailerListRecyclerView;
@@ -76,6 +82,8 @@ public class MovieDetailActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
+
+        rootLayout = (CoordinatorLayout) findViewById(R.id.movie_detail_root_layout);
 
         ButterKnife.bind(this);
 
@@ -120,7 +128,7 @@ public class MovieDetailActivity extends AppCompatActivity
 
         try {
             Date releaseDate = new SimpleDateFormat("yyyy-MM-dd").parse(cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.MOVIE_COLUMN_RELEASE_DATE)));
-            movieYearTextView.setText(new SimpleDateFormat("yyyy").format(releaseDate));
+            movieReleaseTextView.setText(new SimpleDateFormat("dd MMMM yyyy").format(releaseDate));
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -151,12 +159,17 @@ public class MovieDetailActivity extends AppCompatActivity
         favoriteToggleButton.setCompoundDrawablesWithIntrinsicBounds(favoriteIcon, null, null, null);
         favoriteToggleButton.setText(favoriteLabel);
 
-        // Use Picasso to load movie poster
         Picasso.with(this)
                 .load(MovieDbUtility.getPosterPath(
                         cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.MOVIE_COLUMN_POSTER_PATH))
                         , "w500"))
                 .into(moviePosterImageView);
+
+        Picasso.with(this)
+                .load(MovieDbUtility.getPosterPath(
+                        cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.MOVIE_COLUMN_POSTER_PATH))
+                        , "w600"))
+                .into(movieBackdropImageView);
 
         // Initialized trailers
         if (!trailersAdapter.initialized) {
@@ -181,20 +194,48 @@ public class MovieDetailActivity extends AppCompatActivity
      * Toggle movie as favorite/unfavorite
      */
     public void toggleFavorite(View view) {
-        Uri updateContentUri = MovieContract.MovieEntry.MOVIE_CONTENT_URI
+        String notificationMessage;
+
+        final Uri updateContentUri = MovieContract.MovieEntry.MOVIE_CONTENT_URI
                 .buildUpon()
                 .appendPath(cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry._ID)))
                 .build();
 
         ContentValues contentValues = new ContentValues();
+        final ContentValues undoContentValues = new ContentValues();
+
+        long currentTimestamp = System.currentTimeMillis() / 1000L;
 
         if (favoritedAt == null || favoritedAt < 1) {
-            contentValues.put(MovieContract.MovieEntry.MOVIE_COLUMN_FAVORITED_AT, System.currentTimeMillis() / 1000L);
+            notificationMessage = getString(R.string.favorite_notification);
+            contentValues.put(MovieContract.MovieEntry.MOVIE_COLUMN_FAVORITED_AT, currentTimestamp);
+            undoContentValues.putNull(MovieContract.MovieEntry.MOVIE_COLUMN_FAVORITED_AT);
         } else {
+            notificationMessage = getString(R.string.unfavorite_notification);
             contentValues.putNull(MovieContract.MovieEntry.MOVIE_COLUMN_FAVORITED_AT);
+            undoContentValues.put(MovieContract.MovieEntry.MOVIE_COLUMN_FAVORITED_AT, currentTimestamp);
         }
 
         getContentResolver().update(updateContentUri, contentValues, null, null);
+
+        Snackbar notificationSnackbar = Snackbar.make(
+                rootLayout,
+                notificationMessage,
+                Snackbar.LENGTH_LONG
+            );
+
+        notificationSnackbar.setAction(
+                getString(R.string.undo_label),
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        getContentResolver().update(updateContentUri, undoContentValues, null, null);
+                    }
+                }
+        );
+        notificationSnackbar.setActionTextColor(ContextCompat.getColor(this, R.color.red));
+
+        notificationSnackbar.show();
     }
 
     /**

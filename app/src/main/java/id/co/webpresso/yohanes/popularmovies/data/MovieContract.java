@@ -30,6 +30,7 @@ public class MovieContract {
         public static final String MOVIE_COLUMN_VOTE_COUNT = "vote_count";
         public static final String MOVIE_COLUMN_VOTE_AVERAGE = "vote_average";
         public static final String MOVIE_COLUMN_POSTER_PATH = "poster_path";
+        public static final String MOVIE_COLUMN_BACKDROP_PATH = "backdrop_path";
         public static final String MOVIE_COLUMN_OVERVIEW = "overview";
         public static final String MOVIE_COLUMN_RELEASE_DATE = "release_date";
         public static final String MOVIE_COLUMN_ADULT = "adult";
