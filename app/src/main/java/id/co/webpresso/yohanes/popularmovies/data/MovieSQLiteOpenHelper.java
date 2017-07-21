@@ -1,7 +1,9 @@
 package id.co.webpresso.yohanes.popularmovies.data;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 
 /**
@@ -10,7 +12,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class MovieSQLiteOpenHelper extends SQLiteOpenHelper {
     private final static String DATABASE_NAME = "movies.db";
-    private final static int DATABASE_VERSION = 2;
+    private final static int DATABASE_VERSION = 3;
 
     public MovieSQLiteOpenHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -40,11 +42,24 @@ public class MovieSQLiteOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
-        if (oldVersion < 2) {
-            String upgradeQuery = "ALTER TABLE " + MovieContract.MovieEntry.TABLE_NAME + " " +
-                    "ADD COLUMN " + MovieContract.MovieEntry.MOVIE_COLUMN_BACKDROP_PATH + " STRING;";
+        if (oldVersion < 3) {
+            Cursor cursor = null;
 
-            sqLiteDatabase.execSQL(upgradeQuery);
+            try {
+                cursor = sqLiteDatabase.rawQuery("SELECT * FROM " + MovieContract.MovieEntry.TABLE_NAME + " LIMIT 0", null);
+
+                if (cursor.getColumnIndex(MovieContract.MovieEntry.MOVIE_COLUMN_BACKDROP_PATH) < 0) {
+                    String upgradeQuery = "ALTER TABLE " + MovieContract.MovieEntry.TABLE_NAME + " " +
+                            "ADD COLUMN " + MovieContract.MovieEntry.MOVIE_COLUMN_BACKDROP_PATH + " STRING;";
+
+                    sqLiteDatabase.execSQL(upgradeQuery);
+                }
+            } catch (SQLiteException e) {
+                e.printStackTrace();
+            } finally {
+                if (cursor != null)
+                    cursor.close();
+            }
         }
     }
 }
